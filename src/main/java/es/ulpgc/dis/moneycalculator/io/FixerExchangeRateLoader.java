@@ -16,13 +16,12 @@ import java.util.Map;
 public class FixerExchangeRateLoader implements ExchangeRateLoader {
     @Override
     public ExchangeRate load(Currency from, Currency to) {
-        Map<String, JsonElement> symbolsValue = null;
         try {
-            symbolsValue = new Gson().fromJson(loadJsonCode(), JsonObject.class).get("rates").getAsJsonObject().asMap();
+            Map<String, JsonElement> symbolsValue = new Gson().fromJson(loadJsonCode(), JsonObject.class).get("rates").getAsJsonObject().asMap();
+            return new ExchangeRate(from, to, LocalDate.now(), getRateAsDouble(symbolsValue.get(from.code()).getAsString(), symbolsValue.get(to.code()).getAsString()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new ExchangeRate(from, to, LocalDate.now(), getRateAsDouble(symbolsValue.get(from.code()).getAsString(), symbolsValue.get(to.code()).getAsString()));
     }
 
     private String loadJsonCode() throws IOException {

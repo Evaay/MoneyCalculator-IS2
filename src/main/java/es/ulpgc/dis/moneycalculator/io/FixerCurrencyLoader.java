@@ -26,14 +26,14 @@ public class FixerCurrencyLoader implements CurrencyLoader {
 
     private List<Currency> toList(String jsonCode) throws IOException {
         List<Currency> list = new ArrayList<>();
-        Map<String, JsonElement> symbols = new Gson().fromJson(loadJsonCodeName(), JsonObject.class).get("symbols").getAsJsonObject().asMap();
+        Map<String, JsonElement> symbols = new Gson().fromJson(jsonCode, JsonObject.class).get("symbols").getAsJsonObject().asMap();
 
         for (String symbol : symbols.keySet())
             list.add(new Currency(symbol, getSymbolName(symbol, symbols)));
         return list;
     }
 
-    private String getSymbolName(String symbol, Map<String, JsonElement> symbols) throws IOException {
+    private String getSymbolName(String symbol, Map<String, JsonElement> symbols) {
         return String.valueOf(symbols.get(symbol)).replace("\"", "");
     }
 
