@@ -18,7 +18,7 @@ public class FixerCurrencyLoader implements CurrencyLoader {
     @Override
     public List<Currency> load() {
         try {
-            return toList(loadJsonCode());
+            return toList(loadJsonCodeName());
         } catch (IOException e) {
             return emptyList();
         }
@@ -26,27 +26,15 @@ public class FixerCurrencyLoader implements CurrencyLoader {
 
     private List<Currency> toList(String jsonCode) throws IOException {
         List<Currency> list = new ArrayList<>();
-        Map<String, JsonElement> symbols = new Gson().fromJson(jsonCode, JsonObject.class).get("rates").getAsJsonObject().asMap();
-        Map<String, JsonElement> symbolsName = new Gson().fromJson(loadJsonCodeName(), JsonObject.class).get("symbols").getAsJsonObject().asMap();
+        Map<String, JsonElement> symbols = new Gson().fromJson(loadJsonCodeName(), JsonObject.class).get("symbols").getAsJsonObject().asMap();
 
         for (String symbol : symbols.keySet())
-            list.add(new Currency(symbol, getSymbolName(symbol, symbolsName), getRateAsDouble(symbol, symbols)));
+            list.add(new Currency(symbol, getSymbolName(symbol, symbols)));
         return list;
     }
 
-    private String getSymbolName(String symbol, Map<String, JsonElement> symbolsName) throws IOException {
-        return String.valueOf(symbolsName.get(symbol)).replace("\"", "");
-    }
-
-    private double getRateAsDouble(String symbol, Map<String, JsonElement> symbols){
-        return Double.parseDouble(symbols.get(symbol).getAsString());
-    }
-
-    private String loadJsonCode() throws IOException {
-        URL url = new URL("https://api.exchangeratesapi.io/v1/latest?access_key=" + FixerAPI.keyCode);
-        try (InputStream is = url.openStream()) {
-            return new String(is.readAllBytes());
-        }
+    private String getSymbolName(String symbol, Map<String, JsonElement> symbols) throws IOException {
+        return String.valueOf(symbols.get(symbol)).replace("\"", "");
     }
 
     private String loadJsonCodeName() throws IOException {
@@ -55,4 +43,6 @@ public class FixerCurrencyLoader implements CurrencyLoader {
             return new String(is.readAllBytes());
         }
     }
+
+
 }
